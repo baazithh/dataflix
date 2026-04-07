@@ -18,8 +18,9 @@ export default function SemanticSearchPage() {
         </Link>
         <h1 className="mt-4 text-3xl font-extrabold">AI Semantic Search</h1>
         <p className="mt-3 max-w-2xl text-zinc-300">
-          Use the top-right search bar and run a query like "Sales data from 2023"
-          to open the LLM semantic mapping terminal.
+          Use the top-right search bar and run a query like{" "}
+          <span className="text-netflix-red">Sales data from 2023</span> to open
+          the LLM semantic mapping terminal.
         </p>
       </main>
       <SemanticOverlay open={open} query={query} onClose={() => setOpen(false)} />
