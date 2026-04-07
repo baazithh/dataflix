@@ -1,13 +1,13 @@
 import { Dataset } from "./types";
 
 export const featuredPipeline = {
-  title: "Revenue Delta Sync",
+  title: "BNPL Financial Integrity Pipeline",
   summary:
-    "Mission-critical pipeline reconciling order, payment, and inventory events every 5 minutes for executive reporting.",
-  owner: "Data Platform",
+    "Mission-critical orchestration that reconciles invoices, settlements, repayments, and delinquency events into a trusted analytics core every 5 minutes.",
+  owner: "Analytics Engineering",
   sla: "5m",
   lineage:
-    "Kafka sales.events -> Bronze raw_sales_events -> Silver sales_cleansed -> Gold finance_revenue_daily",
+    "Kafka erp.transactions -> Bronze raw_erp_logs -> Silver bnpl_transaction_clean -> Gold fct_bnpl_repayment_daily",
 };
 
 export const medallionRows: { title: string; layer: Dataset["layer"]; items: Dataset[] }[] = [
@@ -17,9 +17,9 @@ export const medallionRows: { title: string; layer: Dataset["layer"]; items: Dat
     items: [
       {
         id: "bronze-1",
-        name: "raw_sales_events",
-        description: "Unfiltered sales event stream from Kafka topics.",
-        source: "Kafka: sales.events",
+        name: "raw_erp_logs",
+        description: "Raw ERP transaction/change-log stream landing from Kafka.",
+        source: "Kafka: erp.transactions",
         lastUpdated: "2 min ago",
         health: "Healthy",
         rowCount: "132.4M",
@@ -28,9 +28,9 @@ export const medallionRows: { title: string; layer: Dataset["layer"]; items: Dat
       },
       {
         id: "bronze-2",
-        name: "raw_inventory_snapshots",
-        description: "Hourly S3 dumps from inventory service.",
-        source: "S3: /landing/inventory/",
+        name: "raw_settlement_events",
+        description: "Partner settlement payloads as landed files from ERP exports.",
+        source: "S3: /landing/settlements/",
         lastUpdated: "11 min ago",
         health: "At Risk",
         rowCount: "18.7M",
@@ -39,9 +39,9 @@ export const medallionRows: { title: string; layer: Dataset["layer"]; items: Dat
       },
       {
         id: "bronze-3",
-        name: "raw_customer_profiles",
-        description: "Daily customer profile extracts before quality checks.",
-        source: "S3: /landing/customers/",
+        name: "raw_repayment_status",
+        description: "Repayment and delinquency status updates before validation.",
+        source: "Kafka: bnpl.repayment_status",
         lastUpdated: "23 min ago",
         health: "Healthy",
         rowCount: "9.3M",
@@ -56,9 +56,9 @@ export const medallionRows: { title: string; layer: Dataset["layer"]; items: Dat
     items: [
       {
         id: "silver-1",
-        name: "sales_cleansed",
-        description: "Validated sales rows with standardized dimensions.",
-        source: "Delta Lake: silver.sales_cleansed",
+        name: "bnpl_transaction_clean",
+        description: "Validated BNPL transactions with conformed merchant and customer keys.",
+        source: "Delta Lake: silver.bnpl_transaction_clean",
         lastUpdated: "4 min ago",
         health: "Healthy",
         rowCount: "78.1M",
@@ -67,9 +67,9 @@ export const medallionRows: { title: string; layer: Dataset["layer"]; items: Dat
       },
       {
         id: "silver-2",
-        name: "customer_360",
-        description: "Unified customer profile with deduplicated identities.",
-        source: "Delta Lake: silver.customer_360",
+        name: "customer_credit_profile",
+        description: "Unified customer credit profile with deduplicated identities.",
+        source: "Delta Lake: silver.customer_credit_profile",
         lastUpdated: "13 min ago",
         health: "Healthy",
         rowCount: "4.2M",
@@ -78,9 +78,9 @@ export const medallionRows: { title: string; layer: Dataset["layer"]; items: Dat
       },
       {
         id: "silver-3",
-        name: "inventory_clean",
-        description: "Filtered inventory records with anomaly flags.",
-        source: "Delta Lake: silver.inventory_clean",
+        name: "installment_schedule_clean",
+        description: "Normalized installment schedule with anomaly flags and due-date quality checks.",
+        source: "Delta Lake: silver.installment_schedule_clean",
         lastUpdated: "16 min ago",
         health: "At Risk",
         rowCount: "11.8M",
@@ -95,9 +95,9 @@ export const medallionRows: { title: string; layer: Dataset["layer"]; items: Dat
     items: [
       {
         id: "gold-1",
-        name: "finance_revenue_daily",
-        description: "Daily executive revenue metric table by market.",
-        source: "Warehouse: gold.finance_revenue_daily",
+        name: "fct_bnpl_repayment_daily",
+        description: "Daily fact table for repayment, principal outstanding, and fee revenue.",
+        source: "Warehouse: gold.fct_bnpl_repayment_daily",
         lastUpdated: "3 min ago",
         health: "Healthy",
         rowCount: "1.9M",
@@ -106,9 +106,9 @@ export const medallionRows: { title: string; layer: Dataset["layer"]; items: Dat
       },
       {
         id: "gold-2",
-        name: "ops_fulfillment_scorecard",
-        description: "SLA and fulfillment KPI aggregates for operations.",
-        source: "Warehouse: gold.ops_fulfillment_scorecard",
+        name: "fct_default_risk_monthly",
+        description: "Default-risk and delinquency aggregates by customer and merchant cohorts.",
+        source: "Warehouse: gold.fct_default_risk_monthly",
         lastUpdated: "9 min ago",
         health: "Healthy",
         rowCount: "623K",
@@ -117,9 +117,9 @@ export const medallionRows: { title: string; layer: Dataset["layer"]; items: Dat
       },
       {
         id: "gold-3",
-        name: "sales_2023_snapshot",
-        description: "Historical 2023 sales snapshot optimized for BI.",
-        source: "Warehouse: gold.sales_2023_snapshot",
+        name: "mart_bnpl_executive_kpis",
+        description: "Executive-ready metrics mart powering BI and centralized metric definitions.",
+        source: "Warehouse: gold.mart_bnpl_executive_kpis",
         lastUpdated: "1 hour ago",
         health: "At Risk",
         rowCount: "42.5M",

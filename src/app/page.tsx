@@ -2,6 +2,7 @@ import Link from "next/link";
 
 export default function Home() {
   const pages = [
+    { href: "/platform-overview", label: "BNPL Platform Overview" },
     { href: "/featured-asset", label: "Featured Asset" },
     { href: "/bronze-layer", label: "Recently Ingested (Bronze)" },
     { href: "/silver-layer", label: "Most Popular Tables (Silver)" },
@@ -19,8 +20,10 @@ export default function Home() {
           DATAFLIX
         </h1>
         <p className="mt-4 max-w-2xl text-zinc-300">
-          Home page control center. Click any feature button to open its
-          respective page.
+          A high-integrity Analytics Engineering platform simulating a BNPL
+          ecosystem. It transforms raw ERP-style transaction logs into an
+          AI-ready Star Schema with a centralized metrics layer, financial
+          integrity checks, and LLM-grounded documentation.
         </p>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {pages.map((page) => (
